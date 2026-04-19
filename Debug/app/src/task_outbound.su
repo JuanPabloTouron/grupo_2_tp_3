@@ -1,4 +1,4 @@
-../app/src/task_outbound.c:17:13:uart_tx_all_	24	static
-../app/src/task_outbound.c:37:13:task_outbound_	352	static
-../app/src/task_outbound.c:68:6:task_outbound_init	32	static
-../app/src/task_outbound.c:87:6:task_outbound_notify_pending	8	static
+../app/src/task_outbound.c:19:13:uart_tx_all_	24	static
+../app/src/task_outbound.c:39:13:task_outbound_	368	static
+../app/src/task_outbound.c:89:6:task_outbound_init	24	static
+../app/src/task_outbound.c:108:6:task_outbound_notify_pending	8	static

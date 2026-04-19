@@ -3,6 +3,9 @@
 
 #include "cmsis_os.h"
 #include <stdint.h>
+#include "protocol.h"
+
+extern MsgTick_t tick;
 
 typedef struct
 {
@@ -10,6 +13,6 @@ typedef struct
   uint32_t period_ms;
 } task_tick_args_t;
 
-void task_tick_init(task_tick_args_t *args);
+void task_tick_init(void);
 
 #endif /* TASK_TICK_H_ */

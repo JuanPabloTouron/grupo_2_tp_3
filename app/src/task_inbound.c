@@ -77,7 +77,7 @@ static void task_inbound_(void* argument)
 
 /********************** public API ******************************************/
 
-void task_inbound_init(task_inbound_args_t *args)
+void task_inbound_init(void)
 {
     BaseType_t status;
 
@@ -85,7 +85,7 @@ void task_inbound_init(task_inbound_args_t *args)
         task_inbound_,
         "task_inbound",
         TASK_STACK_SIZE_,
-        (void*)args,
+        NULL,
         tskIDLE_PRIORITY+1,
         NULL
     );

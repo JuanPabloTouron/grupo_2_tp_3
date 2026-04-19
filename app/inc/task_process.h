@@ -15,7 +15,7 @@ typedef struct
   uint32_t period_ms;
 } task_process_args_t;
 
-void task_process_init(task_process_args_t *args);
+void task_process_init(void);
 
 extern MsgRequest_t msgBuffer[MAX_MSG];
 

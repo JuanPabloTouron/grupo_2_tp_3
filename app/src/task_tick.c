@@ -1,8 +1,9 @@
 #include "task_tick.h"
 #include "driver_uart.h"
 #include <string.h>
-#include "protocol.h"
 #include "task.h"
+#include "task_outbound.h"
+
 
 #define TASK_STACK_SIZE_		(512)
 #define TX_MSG_BUFFER_SIZE_		(300)
@@ -22,7 +23,8 @@ static void task_tick_(void* argument)
     {
     	msg_tick_create(&tick, xLastWakeTime);
     	if (0 == msg_tick_write(tx_buffer, &tick)){
-    		driver_uart_tx((uint8_t*)tx_buffer, strlen(tx_buffer));
+    		//driver_uart_tx((uint8_t*)tx_buffer, strlen(tx_buffer));
+    		task_outbound_notify_pending();
     		vTaskDelayUntil(&xLastWakeTime, xPeriod);
     	}
 
@@ -31,7 +33,7 @@ static void task_tick_(void* argument)
 
 /********************** public API ******************************************/
 
-void task_tick_init(task_tick_args_t *args)
+void task_tick_init(void)
 {
     BaseType_t status;
 
@@ -39,7 +41,7 @@ void task_tick_init(task_tick_args_t *args)
         task_tick_,
         "task_tick",
 		TASK_STACK_SIZE_,
-        (void*)args,
+        NULL,
         tskIDLE_PRIORITY+2,
         NULL
     );

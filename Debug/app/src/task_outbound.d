@@ -17,8 +17,8 @@ app/src/task_outbound.o: ../app/src/task_outbound.c \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h \
- ../app/inc/driver_uart.h ../app/inc/protocol.h ../app/inc/task_process.h \
- ../app/inc/protocol.h
+ ../app/inc/driver_uart.h ../app/inc/task_process.h ../app/inc/protocol.h \
+ ../app/inc/task_tick.h
 ../app/inc/task_outbound.h:
 ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h:
 ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h:
@@ -38,6 +38,6 @@ app/src/task_outbound.o: ../app/src/task_outbound.c \
 ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h:
 ../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h:
 ../app/inc/driver_uart.h:
-../app/inc/protocol.h:
 ../app/inc/task_process.h:
 ../app/inc/protocol.h:
+../app/inc/task_tick.h:

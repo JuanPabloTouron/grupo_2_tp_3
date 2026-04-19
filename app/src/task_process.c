@@ -16,7 +16,7 @@ uint32_t msgCount = 0;
 
 /********************** internal functions definition ************************/
 
-static bool insertMsg(MsgRequest_t nuevo)
+static bool insertMsg(MsgRequest_t nuevo) // ordena los mensajes
 {
     if (msgCount >= MAX_MSG) {
     	return false;
@@ -70,7 +70,7 @@ static void task_process_(void* argument)
 
 		if (pdPASS == xQueueReceive(inbound_queue_h, &newMsg, portMAX_DELAY))
 		{
-			vTaskDelay(pdMS_TO_TICKS(PROCESS_BATCH_DELAY_MS_));
+			vTaskDelay(pdMS_TO_TICKS(PROCESS_BATCH_DELAY_MS_)); //
 
 			do
 			{
@@ -97,7 +97,7 @@ static void task_process_(void* argument)
 
 /********************** public API ******************************************/
 
-void task_process_init(task_process_args_t *args)
+void task_process_init(void)
 {
     BaseType_t status;
 
@@ -106,7 +106,7 @@ void task_process_init(task_process_args_t *args)
         task_process_,
         "task_process",
 		TASK_STACK_SIZE_,
-        (void*)args,
+        NULL,
         tskIDLE_PRIORITY,
         NULL
     );

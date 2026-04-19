@@ -83,34 +83,6 @@ typedef struct
 linked_list_t ordered_list;
 QueueHandle_t inbound_queue_h;
 
-
-
-static char msgprocess_[] = "Task Process\n";
-static char msgoutbound_[] = "Task Outbound\n";
-static char msginbound_[] = "Task Inbound\n";
-static char msgtick_[] = "Tick\n";
-
-
-
-static task_inbound_args_t inbound = {
-	    .msg = msginbound_,
-	    .period_ms = 1000
-	};
-
-static task_process_args_t process = {
-	    .msg = msgprocess_,
-	    .period_ms = 2000
-	};
-
-static task_outbound_args_t outbound = {
-		.msg = msgoutbound_,
-	    .period_ms = 3000
-	};
-
-static task_tick_args_t tick = {
-	    .msg = msgtick_,
-	    .period_ms = 500
-	};
 /********************** external data definition *****************************/
 
 /********************** internal functions definition ************************/
@@ -126,10 +98,10 @@ void app_init(void)
 
   inbound_queue_h = xQueueCreate(INBOUND_QUEUE_SIZE_,sizeof(MsgRequest_t));
 
-  task_inbound_init(&inbound);
-  task_outbound_init(&outbound);
-  task_process_init(&process);
-  task_tick_init(&tick);
+  task_inbound_init();
+  task_outbound_init();
+  task_process_init();
+  task_tick_init();
 
 
   cycle_counter_init();

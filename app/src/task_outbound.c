@@ -1,8 +1,8 @@
 /********************** inclusions *******************************************/
 #include "task_outbound.h"
 #include "driver_uart.h"
-#include "protocol.h"
 #include "task_process.h"
+#include "task_tick.h"
 #include <string.h>
 
 /********************** macros and definitions *******************************/
@@ -13,6 +13,8 @@
 /********************** internal data declaration ****************************/
 static TaskHandle_t task_outbound_h;
 /********************** internal task ***************************************/
+
+extern MsgTick_t tick;
 
 static void uart_tx_all_(uint8_t *buffer, size_t size)
 {
@@ -42,30 +44,49 @@ static void task_outbound_(void* argument)
 
     char tx_buffer[TX_MSG_BUFFER_SIZE_];
 
+    MsgTick_t lastTick = {0};
+    MsgTick_t localTick = {0};
+
+	MsgRequest_t next;
+
+	MsgResponse_t response;
+
     while (1)
     {
     	(void)ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 
-    	MsgRequest_t next;
-    	while (task_process_get_next_msg(&next))
-		{
-			MsgResponse_t response;
+    	taskENTER_CRITICAL();
+    	localTick = tick;
+    	taskEXIT_CRITICAL();
 
-			msg_response_create(&response, next.id);
+    	if(localTick.stamp != lastTick.stamp){
+    		msg_tick_write(tx_buffer, &tick);
+    		uart_tx_all_((uint8_t*)tx_buffer, strlen(tx_buffer));
+    		lastTick = tick;
+    	}
 
-			if (0 == msg_response_write(tx_buffer, &response))
-			{
-				size_t msg_len = strlen(tx_buffer);
-				uart_tx_all_((uint8_t*)tx_buffer, msg_len);
-			}
-		}
+    	do{
+    		if(task_process_get_next_msg(&next)){
+    			msg_response_create(&response, next.id);
+
+    			if (0 == msg_response_write(tx_buffer, &response))
+    			{
+    				size_t msg_len = strlen(tx_buffer);
+    				uart_tx_all_((uint8_t*)tx_buffer, msg_len);
+    			}
+    		}
+
+
+
+    	}while(tick.stamp == lastTick.stamp);
+
     }
 }
 
 
 /********************** public API ******************************************/
 
-void task_outbound_init(task_outbound_args_t *args)
+void task_outbound_init(void)
 {
     BaseType_t status;
 
@@ -73,7 +94,7 @@ void task_outbound_init(task_outbound_args_t *args)
         task_outbound_,
         "task_outbound",
         TASK_STACK_SIZE_,
-        (void*)args,
+        NULL,
         tskIDLE_PRIORITY,
         &task_outbound_h
     );
