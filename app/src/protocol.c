@@ -82,7 +82,7 @@ int msg_tick_write(char *buffer, MsgTick_t *msg)
   size_t head_len = strlen(buffer);
   ret = sprintf(
       buffer + head_len,
-      ",stamp:%d}",
+      ",stamp:%d}\n",
       msg->stamp);
 
   if (ret < 0)

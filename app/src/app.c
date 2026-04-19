@@ -134,7 +134,7 @@ void app_init(void)
   task_inbound_init(&inbound);
   task_outbound_init(&outbound);
   task_process_init(&process);
-  /* task_tick_init(&tick); */
+  task_tick_init(&tick);
 
 
   cycle_counter_init();

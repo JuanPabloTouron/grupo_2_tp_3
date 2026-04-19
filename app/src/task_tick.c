@@ -1,19 +1,31 @@
 #include "task_tick.h"
 #include "driver_uart.h"
 #include <string.h>
+#include "protocol.h"
+#include "task.h"
 
+#define TASK_STACK_SIZE_		(512)
+#define TX_MSG_BUFFER_SIZE_		(300)
 /********************** internal task ***************************************/
+
+MsgTick_t tick;
 
 static void task_tick_(void* argument)
 {
-    task_tick_args_t *pargs = (task_tick_args_t*)argument;
+    TickType_t xLastWakeTime = xTaskGetTickCount();
+    const TickType_t xPeriod = pdMS_TO_TICKS(100);
+
+
+    char tx_buffer[TX_MSG_BUFFER_SIZE_];
 
     while (1)
     {
-        size_t msg_len = strlen(pargs->msg);
-        driver_uart_tx((uint8_t*)pargs->msg, msg_len);
+    	msg_tick_create(&tick, xLastWakeTime);
+    	if (0 == msg_tick_write(tx_buffer, &tick)){
+    		driver_uart_tx((uint8_t*)tx_buffer, strlen(tx_buffer));
+    		vTaskDelayUntil(&xLastWakeTime, xPeriod);
+    	}
 
-        vTaskDelay((TickType_t)(pargs->period_ms / portTICK_PERIOD_MS));
     }
 }
 
@@ -26,9 +38,9 @@ void task_tick_init(task_tick_args_t *args)
     status = xTaskCreate(
         task_tick_,
         "task_tick",
-        128,
+		TASK_STACK_SIZE_,
         (void*)args,
-        tskIDLE_PRIORITY,
+        tskIDLE_PRIORITY+2,
         NULL
     );
 
