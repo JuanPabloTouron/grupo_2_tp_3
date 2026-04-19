@@ -1,0 +1,6 @@
+../app/src/driver_uart.c:86:6:HAL_UART_ErrorCallback	16	static
+../app/src/driver_uart.c:96:6:HAL_UART_RxCpltCallback	16	static
+../app/src/driver_uart.c:107:6:HAL_UART_TxCpltCallback	24	static
+../app/src/driver_uart.c:128:6:driver_uart_init	8	static
+../app/src/driver_uart.c:140:8:driver_uart_rx	16	static
+../app/src/driver_uart.c:146:8:driver_uart_tx	24	static

@@ -1,0 +1,10 @@
+../app/src/protocol.c:14:12:msg_head_create_	16	static
+../app/src/protocol.c:28:12:msg_head_write_	24	static
+../app/src/protocol.c:49:5:msg_tick_create	24	static
+../app/src/protocol.c:68:5:msg_tick_write	24	static
+../app/src/protocol.c:97:5:msg_request_parser	32	static
+../app/src/protocol.c:119:5:msg_response_create	24	static
+../app/src/protocol.c:138:5:msg_response_write	32	static
+../app/src/protocol.c:180:20:protocol_parser_reset_	16	static
+../app/src/protocol.c:186:6:protocol_parser_init	24	static
+../app/src/protocol.c:193:23:protocol_parser_feed	24	static

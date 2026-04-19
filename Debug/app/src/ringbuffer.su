@@ -1,0 +1,13 @@
+../app/src/ringbuffer.c:55:20:inc_idex_	16	static
+../app/src/ringbuffer.c:64:20:write_byte_	16	static
+../app/src/ringbuffer.c:71:20:read_byte_	16	static
+../app/src/ringbuffer.c:80:6:ringbuffer_init	24	static
+../app/src/ringbuffer.c:89:8:ringbuffer_size	16	static
+../app/src/ringbuffer.c:94:8:ringbuffer_len	16	static
+../app/src/ringbuffer.c:99:8:ringbuffer_free	16	static
+../app/src/ringbuffer.c:104:6:ringbuffer_is_full	16	static
+../app/src/ringbuffer.c:109:6:ringbuffer_is_empty	16	static
+../app/src/ringbuffer.c:114:8:ringbuffer_write_byte	16	static
+../app/src/ringbuffer.c:124:8:ringbuffer_write	32	static
+../app/src/ringbuffer.c:137:8:ringbuffer_read_byte	16	static
+../app/src/ringbuffer.c:147:8:ringbuffer_read	32	static

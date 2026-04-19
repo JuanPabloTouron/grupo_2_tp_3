@@ -1,38 +1,96 @@
 #include "task_process.h"
 #include "protocol.h"
-#include "linked_list.h"
+#include "task_outbound.h"
 
 
 /********************** macros and definitions *******************************/
 #define TASK_STACK_SIZE_        (512)
-#define PROCESS_BATCH_DELAY_MS_ (10)
+#define PROCESS_BATCH_DELAY_MS_ (20)
 
 extern QueueHandle_t inbound_queue_h;
-extern QueueHandle_t outbound_queue_h;
 
+MsgRequest_t msgBuffer[MAX_MSG];
+uint32_t msgCount = 0;
 
-linked_list_t orderedList;
 /********************** internal functions declaration ***********************/
 
 /********************** internal functions definition ************************/
+
+static bool insertMsg(MsgRequest_t nuevo)
+{
+    if (msgCount >= MAX_MSG) {
+    	return false;
+    }
+
+    int i = (int)msgCount - 1;
+
+    while (i >= 0 && msgBuffer[i].priority < nuevo.priority) {
+        msgBuffer[i + 1] = msgBuffer[i];
+        i--;
+    }
+
+    msgBuffer[i + 1] = nuevo;
+    msgCount++;
+
+    return true;
+}
+
+bool task_process_get_next_msg(MsgRequest_t *msg)
+{
+	if (msg == NULL) {
+		return false;
+	}
+
+	taskENTER_CRITICAL();
+    if (msgCount == 0) {
+    	taskEXIT_CRITICAL();
+    	return false;
+    }
+
+    *msg = msgBuffer[0];
+    for (int i = 1; i < msgCount; i++) {
+        msgBuffer[i - 1] = msgBuffer[i];
+    }
+
+    msgCount--;
+    taskEXIT_CRITICAL();
+
+    return true;
+}
 
 /********************** internal task ***************************************/
 
 static void task_process_(void* argument)
 {
-    MsgRequest_t request;
-    linked_list_node_t node;
-
 
     while (1)
     {
-		if (pdPASS == xQueueReceive(inbound_queue_h, &request, portMAX_DELAY))
-		{
+    	MsgRequest_t newMsg;
+    	uint32_t inserted_count = 0;
 
-			linked_list_node_init(&node,&request);
-			//linked_list_node_add(&orderedList, &node);
-			linked_list_node_ordered_add(&orderedList, &node);
-			vTaskDelay((TickType_t)(PROCESS_BATCH_DELAY_MS_ / portTICK_PERIOD_MS));
+		if (pdPASS == xQueueReceive(inbound_queue_h, &newMsg, portMAX_DELAY))
+		{
+			vTaskDelay(pdMS_TO_TICKS(PROCESS_BATCH_DELAY_MS_));
+
+			do
+			{
+				bool inserted;
+
+				taskENTER_CRITICAL();
+				inserted = insertMsg(newMsg);
+				taskEXIT_CRITICAL();
+
+				if (inserted)
+				{
+					inserted_count++;
+				}
+			}
+			while (pdPASS == xQueueReceive(inbound_queue_h, &newMsg, 0));
+
+			if (inserted_count > 0)
+			{
+				task_outbound_notify_pending();
+			}
 		}
     }
 }
@@ -52,10 +110,6 @@ void task_process_init(task_process_args_t *args)
         tskIDLE_PRIORITY,
         NULL
     );
-
-    linked_list_init(&orderedList);
-
-
     while (pdPASS != status)
     {
         // manejo de error (opcional: log, assert, etc.)

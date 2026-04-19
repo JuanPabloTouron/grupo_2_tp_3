@@ -164,7 +164,7 @@ int msg_response_write(char *buffer, MsgResponse_t *msg)
   memset(pwrite , '0', 256);
   pwrite += 256;
 
-  str_len = sprintf(pwrite, "}");
+  str_len = sprintf(pwrite, "}\n");
   if (str_len < 0)
   {
     return 4;

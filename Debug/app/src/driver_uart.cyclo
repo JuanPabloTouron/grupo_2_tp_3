@@ -1,0 +1,6 @@
+../app/src/driver_uart.c:86:6:HAL_UART_ErrorCallback	2
+../app/src/driver_uart.c:96:6:HAL_UART_RxCpltCallback	2
+../app/src/driver_uart.c:107:6:HAL_UART_TxCpltCallback	4
+../app/src/driver_uart.c:128:6:driver_uart_init	1
+../app/src/driver_uart.c:140:8:driver_uart_rx	2
+../app/src/driver_uart.c:146:8:driver_uart_tx	4

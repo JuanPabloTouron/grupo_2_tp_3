@@ -11,5 +11,6 @@ typedef struct
 } task_outbound_args_t;
 
 void task_outbound_init(task_outbound_args_t *args);
+void task_outbound_notify_pending(void);
 
 #endif /* TASK_OUTBOUND_H_ */
