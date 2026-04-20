@@ -53,6 +53,10 @@ static void queue_request(MsgRequest_t *request)
 
 /********************** internal task ***************************************/
 
+/*
+ * Esta tarea se encarga de recibir mensajes, parsearlos y entregarlos a una queue para ser procesados y ordenados
+ */
+
 static void task_inbound_(void* argument)
 {
 

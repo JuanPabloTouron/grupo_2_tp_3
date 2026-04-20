@@ -12,10 +12,11 @@
 
 MsgTick_t tick;
 
-bool enough_time_before_tick(TickType_t time){ //la creatividad para los nombres de las cosas en este TP fue un problema (╯°□°)╯︵ ┻━┻
+bool enough_time_before_tick(TickType_t time){
 
 	/*
 	 * calcula si hay time suficiente hasta el proximo tick
+	 * la creatividad para los nombres de las cosas en este TP fue un problema (╯°□°)╯︵ ┻━┻
 	*/
 	TickType_t lastTick;
 
@@ -27,6 +28,11 @@ bool enough_time_before_tick(TickType_t time){ //la creatividad para los nombres
 	return (lastTick + TICK_PERIOD > currentTime + time);
 
 }
+
+/*
+ * Genera los ticks cada 100ms
+ * Cuando hay un tick notifica a la tarea task_outbound para enviarlo
+ */
 
 static void task_tick_(void* argument)
 {
@@ -40,7 +46,6 @@ static void task_tick_(void* argument)
     {
     	msg_tick_create(&tick, xLastWakeTime);
     	if (0 == msg_tick_write(tx_buffer, &tick)){
-    		//driver_uart_tx((uint8_t*)tx_buffer, strlen(tx_buffer));
     		notify_pending();
     		vTaskDelayUntil(&xLastWakeTime, xPeriod);
     	}

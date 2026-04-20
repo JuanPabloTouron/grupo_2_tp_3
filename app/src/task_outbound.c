@@ -16,6 +16,11 @@ static TaskHandle_t task_outbound_h;
 /********************** internal task ***************************************/
 extern MsgTick_t tick;
 
+/*
+ * Esta tarea procesa los mensajes ordenados según la prioridad, genera las respuestas correspondientes y las envía
+ * Además esta tarea recibe los ticks para ser enviados periodicamente
+ */
+
 static void task_outbound_(void* argument)
 {
     task_outbound_args_t *pargs = (task_outbound_args_t*)argument;

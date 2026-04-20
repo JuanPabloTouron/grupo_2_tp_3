@@ -18,7 +18,11 @@ SemaphoreHandle_t listMutex;
 
 /********************** internal functions definition ************************/
 
-static bool insertMsg(MsgRequest_t new) // ordena los mensajes
+/*
+ * ordena los mensajes
+ */
+
+static bool insertMsg(MsgRequest_t new)
 {
     if (msgCount >= MAX_MSG) {
     	return false;
@@ -37,7 +41,11 @@ static bool insertMsg(MsgRequest_t new) // ordena los mensajes
     return true;
 }
 
-bool getNextMsg(MsgRequest_t *msg) // al extraer el mensaje de mayor prioridad hay que reacomodar la lista
+/*
+ * extrae un mensaje y reacomoda la lista
+ */
+
+bool getNextMsg(MsgRequest_t *msg)
 {
 	if (msg == NULL) {
 		return false;
@@ -67,6 +75,11 @@ bool getNextMsg(MsgRequest_t *msg) // al extraer el mensaje de mayor prioridad h
 }
 
 /********************** internal task ***************************************/
+
+/*
+ * esta tarea recibe de la cola inbound_queue y ordena los mensajes que van llegando según su prioridad.
+ * además notifica a la tarea task_outbound cuando procesó mensajes, de esta forma la despierta para que genere una respuesta
+ */
 
 static void task_process_(void* argument)
 {
