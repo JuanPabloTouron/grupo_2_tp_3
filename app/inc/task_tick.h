@@ -14,5 +14,6 @@ typedef struct
 } task_tick_args_t;
 
 void task_tick_init(void);
+bool enough_time_before_tick(TickType_t time);
 
 #endif /* TASK_TICK_H_ */

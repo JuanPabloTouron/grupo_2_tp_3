@@ -1,4 +1,4 @@
-../app/src/task_inbound.c:24:13:on_msg_	3
-../app/src/task_inbound.c:42:13:queue_request_	2
+../app/src/task_inbound.c:24:13:on_msg	3
+../app/src/task_inbound.c:42:13:queue_request	2
 ../app/src/task_inbound.c:56:13:task_inbound_	2
 ../app/src/task_inbound.c:80:6:task_inbound_init	2

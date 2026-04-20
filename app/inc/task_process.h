@@ -19,7 +19,7 @@ void task_process_init(void);
 
 extern MsgRequest_t msgBuffer[MAX_MSG];
 
-bool task_process_get_next_msg(MsgRequest_t *msg);
+bool getNextMsg(MsgRequest_t *msg);
 
 
 #endif /* TASK_PROCESS_H_ */

@@ -16,12 +16,12 @@ extern QueueHandle_t inbound_queue_h;
 
 /********************** internal functions declaration ***********************/
 
-static void on_msg_(ProtocolParser_t *parser);
-static void queue_request_(MsgRequest_t *request);
+static void on_msg(ProtocolParser_t *parser);
+static void queue_request(MsgRequest_t *request);
 
 /********************** internal functions definition ************************/
 
-static void on_msg_(ProtocolParser_t *parser)
+static void on_msg(ProtocolParser_t *parser)
 {
     MsgRequest_t request;
 
@@ -36,18 +36,18 @@ static void on_msg_(ProtocolParser_t *parser)
         return;
     }
 
-    queue_request_(&request); // si el mensaje es del tipo correcto (request) intentamos mandarlo a la cola
+    queue_request(&request); // envía a la queue
 }
 
-static void queue_request_(MsgRequest_t *request)
+static void queue_request(MsgRequest_t *request)
 {
     if (pdPASS == xQueueSend(inbound_queue_h, request, 0))
     {
         return;
     }
 
-    MsgRequest_t discarded_request; // si la cola se llena  de mensajes, sacamos el mas viejo y cargamos uno nuevo
-    (void)xQueueReceive(inbound_queue_h, &discarded_request, 0);
+    MsgRequest_t discardedRequest; // si la cola se llena  de mensajes, sacamos el mas viejo y cargamos uno nuevo
+    (void)xQueueReceive(inbound_queue_h, &discardedRequest, 0);
     (void)xQueueSend(inbound_queue_h, request, 0);
 }
 
@@ -68,10 +68,10 @@ static void task_inbound_(void* argument)
 
         for (size_t i = 0; i < rx_len; i++)
         {
-            (void)protocol_parser_feed(&parser, (char)rx_buffer[i], on_msg_);
+            (void)protocol_parser_feed(&parser, (char)rx_buffer[i], on_msg);
         }
 
-        vTaskDelay((TickType_t)(RX_POLL_DELAY_MS_ / portTICK_PERIOD_MS)); //revisarlo
+        vTaskDelay((TickType_t)(RX_POLL_DELAY_MS_ / portTICK_PERIOD_MS)); // 1ms
     }
 }
 

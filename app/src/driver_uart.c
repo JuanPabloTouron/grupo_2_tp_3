@@ -51,7 +51,7 @@
 
 /********************** macros and definitions *******************************/
 
-#define TX_BUFFER_SIZE_         (16)
+#define TX_BUFFER_SIZE_         (128)
 #define RX_BUFFER_SIZE_         (1)
 #define RB_TX_BUFFER_SIZE_      (1024)
 #define RB_RX_BUFFER_SIZE_      (128)

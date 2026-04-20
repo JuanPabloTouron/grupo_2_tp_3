@@ -5,55 +5,63 @@
 
 /********************** macros and definitions *******************************/
 #define TASK_STACK_SIZE_        (512)
-#define PROCESS_BATCH_DELAY_MS_ (20)
+#define PROCESS_BATCH_DELAY_MS_ (10)
 
 extern QueueHandle_t inbound_queue_h;
 
 MsgRequest_t msgBuffer[MAX_MSG];
 uint32_t msgCount = 0;
 
+SemaphoreHandle_t listMutex;
+
 /********************** internal functions declaration ***********************/
 
 /********************** internal functions definition ************************/
 
-static bool insertMsg(MsgRequest_t nuevo) // ordena los mensajes
+static bool insertMsg(MsgRequest_t new) // ordena los mensajes
 {
     if (msgCount >= MAX_MSG) {
     	return false;
     }
 
-    int i = (int)msgCount - 1;
+    uint32_t i = msgCount;
 
-    while (i >= 0 && msgBuffer[i].priority < nuevo.priority) {
-        msgBuffer[i + 1] = msgBuffer[i];
+    while (i > 0 && msgBuffer[i - 1].priority < new.priority) {
+        msgBuffer[i] = msgBuffer[i - 1];
         i--;
     }
 
-    msgBuffer[i + 1] = nuevo;
+    msgBuffer[i] = new;
     msgCount++;
 
     return true;
 }
 
-bool task_process_get_next_msg(MsgRequest_t *msg)
+bool getNextMsg(MsgRequest_t *msg) // al extraer el mensaje de mayor prioridad hay que reacomodar la lista
 {
 	if (msg == NULL) {
 		return false;
 	}
 
-	taskENTER_CRITICAL();
+	/*
+	 * msgBuffer y msgCount son compartidos por task_process y task_outbound.
+	 * se protegen con un mutex para evitar que una tarea modifique la lista
+	 * mientras la otra la esta recorriendo o actualizando
+	 */
+
+	xSemaphoreTake(listMutex,portMAX_DELAY);
     if (msgCount == 0) {
-    	taskEXIT_CRITICAL();
+    	xSemaphoreGive(listMutex);
     	return false;
     }
 
     *msg = msgBuffer[0];
-    for (int i = 1; i < msgCount; i++) {
+    for (uint32_t i = 1; i < msgCount; i++) {
         msgBuffer[i - 1] = msgBuffer[i];
     }
 
     msgCount--;
-    taskEXIT_CRITICAL();
+    xSemaphoreGive(listMutex);
 
     return true;
 }
@@ -76,20 +84,26 @@ static void task_process_(void* argument)
 			{
 				bool inserted;
 
-				taskENTER_CRITICAL();
+				/*
+				 * msgBuffer y msgCount son compartidos por task_process y task_outbound
+				 * se protegen con un mutex para evitar que una tarea modifique la lista
+				 * mientras la otra la esta recorriendo o actualizando.
+				 */
+
+				xSemaphoreTake(listMutex,portMAX_DELAY);
 				inserted = insertMsg(newMsg);
-				taskEXIT_CRITICAL();
+				xSemaphoreGive(listMutex);
 
 				if (inserted)
 				{
 					inserted_count++;
 				}
-			}
-			while (pdPASS == xQueueReceive(inbound_queue_h, &newMsg, 0));
 
-			if (inserted_count > 0)
+			}while (pdPASS == xQueueReceive(inbound_queue_h, &newMsg, 0));
+
+			if (inserted_count > 0) // si se inserto al menos un mensaje despertamos a task_outbound
 			{
-				task_outbound_notify_pending();
+				notify_pending();
 			}
 		}
     }
@@ -101,6 +115,7 @@ void task_process_init(void)
 {
     BaseType_t status;
 
+    listMutex = xSemaphoreCreateMutex();
 
     status = xTaskCreate(
         task_process_,

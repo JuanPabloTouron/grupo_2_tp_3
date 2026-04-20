@@ -9,32 +9,12 @@
 #define TX_MSG_BUFFER_SIZE_		(300)
 #define TASK_STACK_SIZE_		(512)
 #define TX_RETRY_DELAY_MS_		(1)
-
+#define TX_BUFFER_TIME			(25)
+#define MAX_MSG_PER_TICK        (3)
 /********************** internal data declaration ****************************/
 static TaskHandle_t task_outbound_h;
 /********************** internal task ***************************************/
-
 extern MsgTick_t tick;
-
-static void uart_tx_all_(uint8_t *buffer, size_t size)
-{
-	size_t sent = 0;
-
-	while (sent < size)
-	{
-		size_t written = driver_uart_tx(buffer + sent, size - sent);
-
-		if (written > 0)
-		{
-			sent += written;
-		}
-		else
-		{
-			vTaskDelay(pdMS_TO_TICKS(TX_RETRY_DELAY_MS_));
-		}
-	}
-}
-
 
 static void task_outbound_(void* argument)
 {
@@ -51,6 +31,8 @@ static void task_outbound_(void* argument)
 
 	MsgResponse_t response;
 
+	uint32_t msgsSent = 0;
+
     while (1)
     {
     	(void)ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
@@ -60,26 +42,34 @@ static void task_outbound_(void* argument)
     	taskEXIT_CRITICAL();
 
     	if(localTick.stamp != lastTick.stamp){
-    		msg_tick_write(tx_buffer, &tick);
-    		uart_tx_all_((uint8_t*)tx_buffer, strlen(tx_buffer));
-    		lastTick = tick;
+    		msg_tick_write(tx_buffer, &localTick);
+    		driver_uart_tx((uint8_t*)tx_buffer, strlen(tx_buffer));
+    		lastTick = localTick;
+    		msgsSent = 0;
     	}
 
-    	do{
-    		if(task_process_get_next_msg(&next)){
-    			msg_response_create(&response, next.id);
+    	/*
+    	 * limitamos la cantidad de mensajes que se pueden mandar entre ticks teniendo en cuenta el tiempo que demora en enviarse un MSG-RESPONSE
+    	 * estimamos que debería demorar alrededor de 25ms en enviarse por lo que limitamos la cantidad de mensajes a 3.
+    	 */
 
-    			if (0 == msg_response_write(tx_buffer, &response))
-    			{
-    				size_t msg_len = strlen(tx_buffer);
-    				uart_tx_all_((uint8_t*)tx_buffer, msg_len);
-    			}
-    		}
+    	while(msgsSent < MAX_MSG_PER_TICK)
+    	{
+    	    if(getNextMsg(&next)){
+    	        msg_response_create(&response, next.id);
 
-
-
-    	}while(tick.stamp == lastTick.stamp);
-
+    	        if (0 == msg_response_write(tx_buffer, &response))
+    	        {
+    	            size_t msg_len = strlen(tx_buffer);
+    	            driver_uart_tx((uint8_t*)tx_buffer, msg_len);
+    	            msgsSent++;
+    	        }
+    	    }
+    	    else
+    	    {
+    	        break;
+    	    }
+    	}
     }
 }
 
@@ -101,11 +91,11 @@ void task_outbound_init(void)
 
     while (pdPASS != status)
     {
-        // manejo de error (opcional: log, assert, etc.)
+        // manejo de errore
     }
 }
 
-void task_outbound_notify_pending(void)
+void notify_pending(void)
 {
 	if (task_outbound_h != NULL)
 	{

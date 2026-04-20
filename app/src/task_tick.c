@@ -7,14 +7,31 @@
 
 #define TASK_STACK_SIZE_		(512)
 #define TX_MSG_BUFFER_SIZE_		(300)
+#define TICK_PERIOD				(100)
 /********************** internal task ***************************************/
 
 MsgTick_t tick;
 
+bool enough_time_before_tick(TickType_t time){ //la creatividad para los nombres de las cosas en este TP fue un problema (╯°□°)╯︵ ┻━┻
+
+	/*
+	 * calcula si hay time suficiente hasta el proximo tick
+	*/
+	TickType_t lastTick;
+
+	taskENTER_CRITICAL();
+	lastTick = tick.stamp;
+	taskEXIT_CRITICAL();
+
+	TickType_t currentTime = xTaskGetTickCount();
+	return (lastTick + TICK_PERIOD > currentTime + time);
+
+}
+
 static void task_tick_(void* argument)
 {
     TickType_t xLastWakeTime = xTaskGetTickCount();
-    const TickType_t xPeriod = pdMS_TO_TICKS(100);
+    const TickType_t xPeriod = pdMS_TO_TICKS(TICK_PERIOD);
 
 
     char tx_buffer[TX_MSG_BUFFER_SIZE_];
@@ -24,7 +41,7 @@ static void task_tick_(void* argument)
     	msg_tick_create(&tick, xLastWakeTime);
     	if (0 == msg_tick_write(tx_buffer, &tick)){
     		//driver_uart_tx((uint8_t*)tx_buffer, strlen(tx_buffer));
-    		task_outbound_notify_pending();
+    		notify_pending();
     		vTaskDelayUntil(&xLastWakeTime, xPeriod);
     	}
 
