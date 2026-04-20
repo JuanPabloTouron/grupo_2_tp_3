@@ -1,4 +1,0 @@
-../app/src/task_process.c:21:13:insertMsg	32	static
-../app/src/task_process.c:40:6:getNextMsg	24	static
-../app/src/task_process.c:71:13:task_process_	40	static
-../app/src/task_process.c:114:6:task_process_init	24	static

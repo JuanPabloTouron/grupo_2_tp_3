@@ -1,4 +1,0 @@
-../app/src/task_inbound.c:24:13:on_msg	32	static
-../app/src/task_inbound.c:42:13:queue_request	32	static
-../app/src/task_inbound.c:56:13:task_inbound_	296	static
-../app/src/task_inbound.c:80:6:task_inbound_init	24	static

@@ -1,0 +1,12 @@
+# Build folders
+Debug/
+Release/
+
+# IDE files
+.settings/
+*.launch
+*.ioc
+
+# OS files
+.DS_Store
+Thumbs.db

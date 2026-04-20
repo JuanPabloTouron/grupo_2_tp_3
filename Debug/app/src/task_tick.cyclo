@@ -1,3 +1,0 @@
-../app/src/task_tick.c:15:6:enough_time_before_tick	1
-../app/src/task_tick.c:31:13:task_tick_	2
-../app/src/task_tick.c:53:6:task_tick_init	2

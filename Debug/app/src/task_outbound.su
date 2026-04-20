@@ -1,3 +1,0 @@
-../app/src/task_outbound.c:19:13:task_outbound_	368	static
-../app/src/task_outbound.c:79:6:task_outbound_init	24	static
-../app/src/task_outbound.c:98:6:notify_pending	8	static
